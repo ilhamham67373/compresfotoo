@@ -1,0 +1,277 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.app { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1.5rem; }
+.header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+.logo { width: 38px; height: 38px; background: var(--color-text-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo i { font-size: 18px; color: var(--color-background-primary); }
+.logo-text h1 { font-size: 18px; font-weight: 500; line-height: 1; }
+.logo-text p { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.drop-zone { border: 1.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; background: var(--color-background-secondary); transition: border-color 0.15s, background 0.15s; }
+.drop-zone.drag-over { border-color: var(--color-text-primary); background: var(--color-background-tertiary); }
+.drop-zone i { font-size: 32px; color: var(--color-text-secondary); display: block; margin-bottom: 10px; }
+.drop-zone .dtitle { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.drop-zone .dsub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 14px; }
+.browse-btn { background: var(--color-text-primary); color: var(--color-background-primary); border: none; padding: 8px 18px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); }
+.target-panel { margin-top: 1.25rem; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
+.target-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.target-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+.target-btn { border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 8px 4px; font-size: 13px; font-weight: 500; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-primary); font-family: var(--font-sans); text-align: center; transition: border-color 0.15s, background 0.15s; }
+.target-btn.active { border: 1.5px solid var(--color-text-primary); background: var(--color-background-tertiary); }
+.custom-row { display: flex; align-items: center; gap: 10px; }
+.custom-row label { font-size: 13px; color: var(--color-text-secondary); white-space: nowrap; }
+.custom-row input[type=number] { width: 90px; padding: 7px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 13px; font-family: var(--font-sans); }
+.custom-row select { padding: 7px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 13px; font-family: var(--font-sans); }
+.action-btn { width: 100%; margin-top: 1.25rem; background: var(--color-text-primary); color: var(--color-background-primary); border: none; padding: 13px; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.result-panel { margin-top: 1.25rem; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; display: none; }
+.result-panel.visible { display: block; }
+.result-preview { position: relative; }
+.result-preview img { width: 100%; max-height: 220px; object-fit: contain; background: var(--color-background-tertiary); display: block; }
+.result-overlay { position: absolute; top: 8px; right: 8px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 4px 10px; font-size: 12px; font-weight: 500; }
+.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 0.5px solid var(--color-border-tertiary); }
+.stat-cell { padding: 12px; text-align: center; }
+.stat-cell + .stat-cell { border-left: 0.5px solid var(--color-border-tertiary); }
+.stat-val { font-size: 16px; font-weight: 500; }
+.stat-lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.green-val { color: var(--color-text-success); }
+.red-val { color: var(--color-text-danger); }
+.progress-wrap { height: 3px; background: var(--color-border-tertiary); border-radius: 2px; margin-top: 1rem; display: none; overflow: hidden; }
+.progress-wrap.visible { display: block; }
+.progress-bar { height: 100%; background: var(--color-text-primary); border-radius: 2px; width: 0%; transition: width 0.25s; }
+.download-btn { width: 100%; margin-top: 10px; background: transparent; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-primary); padding: 11px; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.download-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.status-msg { font-size: 13px; color: var(--color-text-secondary); text-align: center; margin-top: 10px; min-height: 20px; }
+.status-msg.err { color: var(--color-text-danger); }
+</style>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Kompres foto ke ukuran target tertentu tanpa mengubah dimensi gambar.</h2>
+
+<div class="app">
+  <div class="header">
+    <div class="logo"><i class="ti ti-photo-scan" aria-hidden="true"></i></div>
+    <div class="logo-text">
+      <h1>Kompres ke ukuran target</h1>
+      <p>Hasil maksimal, dimensi tetap sama</p>
+    </div>
+  </div>
+
+  <div class="drop-zone" id="drop-zone">
+    <i class="ti ti-cloud-upload" aria-hidden="true"></i>
+    <div class="dtitle">Seret & letakkan foto di sini</div>
+    <div class="dsub">JPG, PNG, WebP · hingga 50 MB</div>
+    <button class="browse-btn" onclick="document.getElementById('fi').click()">Pilih File</button>
+    <input type="file" id="fi" accept="image/*" style="display:none" />
+  </div>
+
+  <div class="target-panel">
+    <div class="target-label">Target ukuran</div>
+    <div class="target-options">
+      <button class="target-btn" data-kb="100" onclick="selectTarget(this,100)">100 KB</button>
+      <button class="target-btn active" data-kb="200" onclick="selectTarget(this,200)">200 KB</button>
+      <button class="target-btn" data-kb="400" onclick="selectTarget(this,400)">400 KB</button>
+      <button class="target-btn" data-kb="1024" onclick="selectTarget(this,1024)">1 MB</button>
+    </div>
+    <div class="custom-row">
+      <label>Kustom:</label>
+      <input type="number" id="custom-kb" min="10" max="20000" placeholder="mis. 300" oninput="onCustomInput()" />
+      <select id="custom-unit" onchange="onCustomInput()">
+        <option value="kb">KB</option>
+        <option value="mb">MB</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="progress-wrap" id="prog-wrap"><div class="progress-bar" id="prog-bar"></div></div>
+
+  <button class="action-btn" id="compress-btn" onclick="startCompress()" disabled>
+    <i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>
+    Kompres sekarang
+  </button>
+
+  <div class="status-msg" id="status-msg"></div>
+
+  <div class="result-panel" id="result-panel">
+    <div class="result-preview">
+      <img id="result-img" src="" alt="Hasil kompresi" />
+      <div class="result-overlay" id="result-badge">—</div>
+    </div>
+    <div class="result-stats">
+      <div class="stat-cell">
+        <div class="stat-val" id="s-orig">—</div>
+        <div class="stat-lbl">Asli</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val" id="s-new">—</div>
+        <div class="stat-lbl">Hasil</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val" id="s-pct">—</div>
+        <div class="stat-lbl">Dihemat</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="download-btn" id="dl-btn" disabled onclick="doDownload()">
+    <i class="ti ti-download" aria-hidden="true"></i>
+    Unduh hasil
+  </button>
+</div>
+
+<canvas id="cv" style="display:none"></canvas>
+
+<script>
+let origFile = null, origImg = null, resultBlob = null, targetKB = 200;
+
+const dropZone = document.getElementById('drop-zone');
+const fi = document.getElementById('fi');
+const compBtn = document.getElementById('compress-btn');
+const dlBtn = document.getElementById('dl-btn');
+const statusMsg = document.getElementById('status-msg');
+const progWrap = document.getElementById('prog-wrap');
+const progBar = document.getElementById('prog-bar');
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+
+function fmtSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1024*1024) return Math.round(b/1024) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+function selectTarget(el, kb) {
+  document.querySelectorAll('.target-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  targetKB = kb;
+  document.getElementById('custom-kb').value = '';
+  setStatus('');
+}
+
+function onCustomInput() {
+  const v = parseFloat(document.getElementById('custom-kb').value);
+  const unit = document.getElementById('custom-unit').value;
+  if (!isNaN(v) && v > 0) {
+    targetKB = unit === 'mb' ? Math.round(v * 1024) : Math.round(v);
+    document.querySelectorAll('.target-btn').forEach(b => b.classList.remove('active'));
+  }
+}
+
+function setStatus(msg, isErr) {
+  statusMsg.textContent = msg;
+  statusMsg.className = 'status-msg' + (isErr ? ' err' : '');
+}
+
+function setProgress(pct) {
+  progBar.style.width = pct + '%';
+  if (pct > 0 && pct < 100) progWrap.classList.add('visible');
+  else if (pct >= 100) setTimeout(() => { progWrap.classList.remove('visible'); progBar.style.width = '0%'; }, 400);
+}
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('image/')) loadFile(f); });
+fi.addEventListener('change', () => { if (fi.files[0]) loadFile(fi.files[0]); });
+
+function loadFile(file) {
+  origFile = file;
+  resultBlob = null;
+  dlBtn.disabled = true;
+  document.getElementById('result-panel').classList.remove('visible');
+  setStatus('Memuat foto...');
+  const r = new FileReader();
+  r.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      origImg = img;
+      compBtn.disabled = false;
+      setStatus('Foto siap — ' + fmtSize(file.size) + ' · ' + img.width + '×' + img.height + ' px');
+    };
+    img.src = e.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+async function blobAtQuality(q) {
+  return new Promise(resolve => {
+    cv.toBlob(b => resolve(b), 'image/jpeg', q);
+  });
+}
+
+async function startCompress() {
+  if (!origImg) return;
+  compBtn.disabled = true;
+  dlBtn.disabled = true;
+  resultBlob = null;
+  document.getElementById('result-panel').classList.remove('visible');
+
+  cv.width = origImg.width;
+  cv.height = origImg.height;
+  ctx.drawImage(origImg, 0, 0);
+
+  const targetBytes = targetKB * 1024;
+
+  setStatus('Mencari kualitas optimal...');
+  setProgress(10);
+
+  let lo = 0.01, hi = 1.0, best = null, bestQ = 1.0;
+  const MAX_ITER = 16;
+
+  for (let i = 0; i < MAX_ITER; i++) {
+    const mid = (lo + hi) / 2;
+    setProgress(10 + Math.round((i / MAX_ITER) * 75));
+    const blob = await blobAtQuality(mid);
+    if (blob.size <= targetBytes) {
+      best = blob;
+      bestQ = mid;
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+    if (hi - lo < 0.005) break;
+    await new Promise(r => setTimeout(r, 0));
+  }
+
+  setProgress(95);
+
+  if (!best) {
+    const blob = await blobAtQuality(0.01);
+    if (blob.size <= targetBytes) {
+      best = blob;
+    } else {
+      setProgress(100);
+      compBtn.disabled = false;
+      setStatus('Foto terlalu besar untuk dikompres ke target ini. Coba target yang lebih besar.', true);
+      return;
+    }
+  }
+
+  resultBlob = best;
+  const url = URL.createObjectURL(best);
+  document.getElementById('result-img').src = url;
+
+  const origKB = Math.round(origFile.size / 1024);
+  const newKB = Math.round(best.size / 1024);
+  const saved = Math.round((1 - best.size / origFile.size) * 100);
+
+  document.getElementById('s-orig').textContent = fmtSize(origFile.size);
+  document.getElementById('s-new').textContent = fmtSize(best.size);
+  document.getElementById('s-pct').textContent = (saved > 0 ? '-' : '+') + Math.abs(saved) + '%';
+  document.getElementById('s-pct').className = 'stat-val ' + (saved > 0 ? 'green-val' : 'red-val');
+  document.getElementById('result-badge').textContent = fmtSize(best.size);
+
+  document.getElementById('result-panel').classList.add('visible');
+  setProgress(100);
+  compBtn.disabled = false;
+  dlBtn.disabled = false;
+  setStatus('Selesai! Dimensi tetap ' + origImg.width + '×' + origImg.height + ' px');
+}
+
+function doDownload() {
+  if (!resultBlob) return;
+  const base = (origFile.name || 'foto').replace(/\.[^.]+$/, '');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(resultBlob);
+  a.download = base + '_' + targetKB + 'kb.jpg';
+  a.click();
+}
+</script>
